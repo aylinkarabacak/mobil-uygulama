@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.todolistapp.Adapter.ToDoAdapter;
 import com.example.todolistapp.Model.ToDoModel;
 import com.example.todolistapp.Utils.DataBaseHelper;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements OnDialogCloseListner{
 
     private RecyclerView mRecyclerview;
-    private FloatingActionButton fab;
+    private ExtendedFloatingActionButton fab;
     private DataBaseHelper myDB;
     private List<ToDoModel> mList;
     private ToDoAdapter adapter;

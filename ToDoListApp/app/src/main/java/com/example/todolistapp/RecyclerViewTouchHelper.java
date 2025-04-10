@@ -45,6 +45,7 @@ public class RecyclerViewTouchHelper extends ItemTouchHelper.SimpleCallback {
                       adapter.notifyItemChanged(position);
                   }
               });
+              builder.create().show();
           }else{
               adapter.editItem(position);
           }

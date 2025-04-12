@@ -53,12 +53,12 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
         Bundle bundle = getArguments();
         if(bundle != null){
-            isUpdate = false;
+            isUpdate = true;
             String task = bundle.getString("task");
             mEditText.setText(task);
 
             if(task.length() > 0){
-                mSaveButton.setEnabled(false);
+                mSaveButton.setEnabled(true);
             }
         }
         mEditText.addTextChangedListener(new TextWatcher() {

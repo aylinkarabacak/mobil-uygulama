@@ -15,6 +15,7 @@ import com.example.todolistapp.AddNewTask;
 import com.example.todolistapp.MainActivity;
 import com.example.todolistapp.Model.ToDoModel;
 import com.example.todolistapp.R;
+import com.example.todolistapp.TaskAction;
 import com.example.todolistapp.Utils.DataBaseHelper;
 
 import java.util.List;
@@ -25,10 +26,13 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
     private List<ToDoModel> mList;
     private MainActivity activity;
     private DataBaseHelper myDB;
+    private TaskAction taskAction;
 
-    public ToDoAdapter(DataBaseHelper myDB, MainActivity activity){
+
+    public ToDoAdapter(DataBaseHelper myDB, MainActivity activity, TaskAction taskAction){
         this.activity = activity;
         this.myDB = myDB;
+        this.taskAction = taskAction;
     }
 
 
@@ -44,6 +48,9 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
         final ToDoModel item = mList.get(position);
         holder.mCheckBox.setText(item.getTask());
         holder.mCheckBox.setChecked(toBoolean(item.getStatus()));
+        holder.mCheckBox.setOnClickListener(v -> {
+            taskAction.execute(item);
+        });
         holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

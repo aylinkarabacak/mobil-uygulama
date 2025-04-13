@@ -1,8 +1,7 @@
 package com.example.todolistapp.Model;
 
-public class ToDoModel {
+public class ToDoModel extends BaseModel {
     private String task;
-    private int id, status;
 
     public String getTask() {
         return task;
@@ -11,20 +10,5 @@ public class ToDoModel {
     public void setTask(String task) {
         this.task = task;
     }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
 }
+

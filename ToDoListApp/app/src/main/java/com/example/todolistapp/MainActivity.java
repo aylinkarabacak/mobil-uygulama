@@ -43,7 +43,8 @@ public class MainActivity extends AppCompatActivity implements OnDialogCloseList
         fab = findViewById(R.id.fab);
         myDB = new DataBaseHelper(MainActivity.this);
         mList = new ArrayList<>();
-        adapter = new ToDoAdapter(myDB , MainActivity.this);
+        TaskAction completeAction = new CompleteTaskAction(myDB);
+        adapter = new ToDoAdapter(myDB,this, completeAction);
 
         mRecyclerview.setHasFixedSize(true);
         mRecyclerview.setLayoutManager(new LinearLayoutManager(this));

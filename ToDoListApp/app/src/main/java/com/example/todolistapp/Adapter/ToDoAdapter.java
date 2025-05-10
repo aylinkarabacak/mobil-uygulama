@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,7 +22,6 @@ import com.example.todolistapp.Utils.DataBaseHelper;
 
 import java.util.List;
 
-
 public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> {
 
     private List<ToDoModel> mList;
@@ -28,13 +29,11 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
     private DataBaseHelper myDB;
     private TaskAction taskAction;
 
-
     public ToDoAdapter(DataBaseHelper myDB, MainActivity activity, TaskAction taskAction){
         this.activity = activity;
         this.myDB = myDB;
         this.taskAction = taskAction;
     }
-
 
     @NonNull
     @Override
@@ -46,24 +45,30 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         final ToDoModel item = mList.get(position);
+
         holder.mCheckBox.setText(item.getTask());
-        holder.mCheckBox.setChecked(toBoolean(item.getStatus()));
+        holder.mCheckBox.setChecked(item.getStatus() == 1);
+
+        holder.mDateView.setText(item.getDate());
+
+        if (item.getImageUri() != null && !item.getImageUri().isEmpty()) {
+            holder.mImageView.setImageURI(android.net.Uri.parse(item.getImageUri()));
+        } else {
+            holder.mImageView.setImageResource(R.drawable.baseline_done_all_24); // default görsel
+        }
+
+
         holder.mCheckBox.setOnClickListener(v -> {
             taskAction.execute(item);
         });
-        holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
-                    myDB.updateStatus(item.getId(), 1);
-                }else
-                    myDB.updateStatus(item.getId(), 0);
+
+        holder.mCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked) {
+                myDB.updateStatus(item.getId(), 1); // Tamamlandı olarak işaretle
+            } else {
+                myDB.updateStatus(item.getId(), 0); // Tamamlanmadı olarak işaretle
             }
         });
-    }
-
-    public boolean toBoolean(int num){
-        return num != 0;
     }
 
     public Context getContext(){
@@ -85,12 +90,14 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
     public void editItem(int position){
         ToDoModel item = mList.get(position);
         Bundle bundle = new Bundle();
-        bundle.putInt("id" , item.getId());
-        bundle.putString("task" , item.getTask());
+        bundle.putInt("id", item.getId());
+        bundle.putString("task", item.getTask());
+        bundle.putString("date", item.getDate());
+        bundle.putString("imageUri", item.getImageUri());
 
         AddNewTask task = new AddNewTask();
         task.setArguments(bundle);
-        task.show(activity.getSupportFragmentManager() , task.getTag());
+        task.show(activity.getSupportFragmentManager(), task.getTag());
     }
 
     @Override
@@ -98,11 +105,16 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
         return mList.size();
     }
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder{
+    public static class MyViewHolder extends RecyclerView.ViewHolder {
         CheckBox mCheckBox;
+        TextView mDateView;
+        ImageView mImageView;
+
         public MyViewHolder(@NonNull View itemView){
             super(itemView);
             mCheckBox = itemView.findViewById(R.id.mcheckbox);
+            mDateView = itemView.findViewById(R.id.textview_date);
+            mImageView = itemView.findViewById(R.id.image_preview);
         }
     }
 }

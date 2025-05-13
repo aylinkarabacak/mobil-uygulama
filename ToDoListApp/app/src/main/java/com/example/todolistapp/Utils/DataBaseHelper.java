@@ -14,7 +14,7 @@ import java.util.List;
 public class DataBaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TODO_DATABASE";
-    private static final int DATABASE_VERSION = 2; // Versiyon artışı
+    private static final int DATABASE_VERSION = 3; // Versiyon artışı
     private static final String TABLE_NAME = "TODO_TABLE";
 
     private static final String COL_ID = "ID";
@@ -22,6 +22,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String COL_STATUS = "STATUS";
     private static final String COL_DATE = "DATE";
     private static final String COL_IMAGE_URI = "IMAGE_URI";
+    private static final String COL_TIME = "TIME";  // Saat için yeni bir kolon ekliyoruz
 
     public DataBaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -34,14 +35,15 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 COL_TASK + " TEXT, " +
                 COL_STATUS + " INTEGER, " +
                 COL_DATE + " TEXT, " +
-                COL_IMAGE_URI + " TEXT)");
+                COL_IMAGE_URI + " TEXT, " +
+                COL_TIME + " TEXT)");  // Yeni kolonu ekledik
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Eğer versiyon yükseltilirse, eski tabloyu silip yeniden oluştur
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-        onCreate(db);
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_TIME + " TEXT");
+        }
     }
 
     // Yeni görev eklemek
@@ -51,6 +53,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         values.put(COL_TASK, task.getTask());
         values.put(COL_STATUS, 0); // Yeni görev başlangıçta tamamlanmamış
         values.put(COL_DATE, task.getDate());
+        values.put(COL_TIME, task.getTime()); // Saat bilgisini de ekliyoruz
         values.put(COL_IMAGE_URI, task.getImageUri());
 
         db.insert(TABLE_NAME, null, values);
@@ -69,6 +72,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 task.setTask(cursor.getString(cursor.getColumnIndexOrThrow(COL_TASK)));
                 task.setStatus(cursor.getInt(cursor.getColumnIndexOrThrow(COL_STATUS)));
                 task.setDate(cursor.getString(cursor.getColumnIndexOrThrow(COL_DATE)));
+                task.setTime(cursor.getString(cursor.getColumnIndexOrThrow(COL_TIME)));
                 task.setImageUri(cursor.getString(cursor.getColumnIndexOrThrow(COL_IMAGE_URI)));
                 taskList.add(task);
             } while (cursor.moveToNext());
@@ -78,14 +82,15 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     // Görev güncellemek
-    public void updateTask(int id, String taskText, String date, String imageUri) {
+    public void updateTask(ToDoModel task) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(COL_TASK, taskText);
-        values.put(COL_DATE, date);
-        values.put(COL_IMAGE_URI, imageUri);
+        values.put(COL_TASK, task.getTask());
+        values.put(COL_DATE, task.getDate());
+        values.put(COL_TIME, task.getTime());  // Saat bilgisini güncelliyoruz
+        values.put(COL_IMAGE_URI, task.getImageUri());
 
-        db.update(TABLE_NAME, values, "ID=?", new String[]{String.valueOf(id)});
+        db.update(TABLE_NAME, values, "ID=?", new String[]{String.valueOf(task.getId())});
     }
 
     // Durum güncellemek (tamamlandı/tamamlanmadı)

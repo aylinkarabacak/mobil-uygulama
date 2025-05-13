@@ -2,13 +2,12 @@ package com.example.todolistapp;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,12 +31,15 @@ import java.util.Locale;
 public class AddNewTask extends BottomSheetDialogFragment {
 
     public static final String TAG = "AddNewTask";
+
     private EditText mEditText;
-    private Button mSaveButton, mDateButton, mImageButton;
-    private TextView mDateTextView;
+    private Button mSaveButton, mDateButton, mImageButton, mTimeButton, mRemoveImageButton;
+    private TextView mDateTextView, mTimeTextView;
     private ImageView mImagePreview;
     private Uri selectedImageUri = null;
     private String selectedDate = "";
+    private int selectedHour = 0, selectedMinute = 0;
+    private int taskId = -1;
 
     private DataBaseHelper myDb;
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -60,42 +62,49 @@ public class AddNewTask extends BottomSheetDialogFragment {
         mSaveButton = view.findViewById(R.id.button_save);
         mDateButton = view.findViewById(R.id.button_date);
         mImageButton = view.findViewById(R.id.button_image);
+        mTimeButton = view.findViewById(R.id.button_time);
+        mRemoveImageButton = view.findViewById(R.id.button_remove_image);
         mDateTextView = view.findViewById(R.id.textview_date);
+        mTimeTextView = view.findViewById(R.id.textview_time);
         mImagePreview = view.findViewById(R.id.image_preview);
 
         myDb = new DataBaseHelper(getActivity());
-        boolean isUpdate = false;
 
         Bundle bundle = getArguments();
         if (bundle != null) {
-            isUpdate = true;
+            taskId = bundle.getInt("id", -1);
             String task = bundle.getString("task");
-            mEditText.setText(task);
             String date = bundle.getString("date");
-            if (date != null && !date.isEmpty()) {
-                selectedDate = date;
-                mDateTextView.setText("Tarih: " + selectedDate);
+            String time = bundle.getString("time");
+            String imageUri = bundle.getString("imageUri");
+
+            mEditText.setText(task);
+            mDateTextView.setText("Tarih: " + date);
+            mTimeTextView.setText("Saat: " + time);
+
+            selectedDate = date;
+            if (time != null && !time.isEmpty()) {
+                String[] timeParts = time.split(":");
+                if (timeParts.length == 2) {
+                    selectedHour = Integer.parseInt(timeParts[0]);
+                    selectedMinute = Integer.parseInt(timeParts[1]);
+                }
             }
 
-// Görsel varsa göster
-            String imageUri = bundle.getString("imageUri");
             if (imageUri != null && !imageUri.isEmpty()) {
                 selectedImageUri = Uri.parse(imageUri);
                 mImagePreview.setImageURI(selectedImageUri);
-            }
-
-            if (task.length() > 0) {
-                mSaveButton.setEnabled(true);
+                mRemoveImageButton.setVisibility(View.VISIBLE);
             }
         }
 
-        mEditText.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mSaveButton.setEnabled(!s.toString().isEmpty());
-                mSaveButton.setBackgroundColor(s.toString().isEmpty() ? Color.GRAY : getResources().getColor(R.color.colorPrimary));
-            }
-            @Override public void afterTextChanged(Editable s) {}
+        mTimeButton.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            new TimePickerDialog(getContext(), (view1, hourOfDay, minute) -> {
+                selectedHour = hourOfDay;
+                selectedMinute = minute;
+                mTimeTextView.setText(String.format("Saat: %02d:%02d", selectedHour, selectedMinute));
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
         });
 
         mDateButton.setOnClickListener(v -> {
@@ -109,31 +118,39 @@ public class AddNewTask extends BottomSheetDialogFragment {
             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
         });
 
+        mSaveButton.setOnClickListener(v -> {
+            String text = mEditText.getText().toString();
+            if (!text.isEmpty()) {
+                ToDoModel task = new ToDoModel();
+                task.setId(taskId);
+                task.setTask(text);
+                task.setDate(selectedDate);
+                String selectedTime = String.format("%02d:%02d", selectedHour, selectedMinute);
+                task.setTime(selectedTime);
+
+                if (selectedImageUri != null) {
+                    task.setImageUri(selectedImageUri.toString());
+                }
+
+                if (taskId != -1) {
+                    myDb.updateTask(task);
+                } else {
+                    myDb.insertTask(task);
+                }
+                dismiss();
+            }
+        });
+
         mImageButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType("image/*");
             startActivityForResult(intent, PICK_IMAGE_REQUEST);
         });
 
-        final boolean finalIsUpdate = isUpdate;
-        mSaveButton.setOnClickListener(v -> {
-            String text = mEditText.getText().toString();
-
-            if (!text.isEmpty()) {
-                ToDoModel task = new ToDoModel();
-                task.setTask(text);
-                task.setDate(selectedDate);
-                if (selectedImageUri != null) {
-                    task.setImageUri(selectedImageUri.toString());
-                }
-
-                if (finalIsUpdate) {
-                    myDb.updateTask(getArguments().getInt("id"), text, selectedDate, selectedImageUri != null ? selectedImageUri.toString() : null);
-                } else {
-                    myDb.insertTask(task);
-                }
-                dismiss();
-            }
+        mRemoveImageButton.setOnClickListener(v -> {
+            selectedImageUri = null;
+            mImagePreview.setImageDrawable(null);
+            mRemoveImageButton.setVisibility(View.GONE);
         });
     }
 
@@ -143,6 +160,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             selectedImageUri = data.getData();
             mImagePreview.setImageURI(selectedImageUri);
+            mRemoveImageButton.setVisibility(View.VISIBLE);
         }
     }
 

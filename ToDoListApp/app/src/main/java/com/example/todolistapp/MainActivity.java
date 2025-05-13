@@ -29,7 +29,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements OnDialogCloseListner{
 
     private RecyclerView mRecyclerview;
-    private ExtendedFloatingActionButton fab;
+    private FloatingActionButton fab;
     private DataBaseHelper myDB;
     private List<ToDoModel> mList;
     private ToDoAdapter adapter;

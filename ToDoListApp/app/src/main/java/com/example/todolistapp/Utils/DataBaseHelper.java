@@ -14,7 +14,7 @@ import java.util.List;
 public class DataBaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TODO_DATABASE";
-    private static final int DATABASE_VERSION = 3; // Versiyon artışı
+    private static final int DATABASE_VERSION = 4;
     private static final String TABLE_NAME = "TODO_TABLE";
 
     private static final String COL_ID = "ID";
@@ -22,7 +22,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String COL_STATUS = "STATUS";
     private static final String COL_DATE = "DATE";
     private static final String COL_IMAGE_URI = "IMAGE_URI";
-    private static final String COL_TIME = "TIME";  // Saat için yeni bir kolon ekliyoruz
+    private static final String COL_TIME = "TIME";
+    private static final String COL_SOUND_URI = "SOUND_URI";
 
     public DataBaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -36,7 +37,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 COL_STATUS + " INTEGER, " +
                 COL_DATE + " TEXT, " +
                 COL_IMAGE_URI + " TEXT, " +
-                COL_TIME + " TEXT)");  // Yeni kolonu ekledik
+                COL_TIME + " TEXT, " +
+                COL_SOUND_URI + " TEXT)");
     }
 
     @Override
@@ -44,22 +46,28 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 2) {
             db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_TIME + " TEXT");
         }
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_IMAGE_URI + " TEXT");
+        }
+        if (oldVersion < 4) {
+            db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_SOUND_URI + " TEXT");
+        }
     }
 
-    // Yeni görev eklemek
-    public void insertTask(ToDoModel task) {
+    public long insertTask(ToDoModel task) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_TASK, task.getTask());
-        values.put(COL_STATUS, 0); // Yeni görev başlangıçta tamamlanmamış
+        values.put(COL_STATUS, 0);
         values.put(COL_DATE, task.getDate());
-        values.put(COL_TIME, task.getTime()); // Saat bilgisini de ekliyoruz
+        values.put(COL_TIME, task.getTime());
         values.put(COL_IMAGE_URI, task.getImageUri());
+        values.put(COL_SOUND_URI, task.getSoundUri());
 
-        db.insert(TABLE_NAME, null, values);
+        long id = db.insert(TABLE_NAME, null, values);
+        return id;
     }
 
-    // Tüm görevleri almak
     public List<ToDoModel> getAllTasks() {
         List<ToDoModel> taskList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -74,6 +82,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 task.setDate(cursor.getString(cursor.getColumnIndexOrThrow(COL_DATE)));
                 task.setTime(cursor.getString(cursor.getColumnIndexOrThrow(COL_TIME)));
                 task.setImageUri(cursor.getString(cursor.getColumnIndexOrThrow(COL_IMAGE_URI)));
+                task.setSoundUri(cursor.getString(cursor.getColumnIndexOrThrow(COL_SOUND_URI)));
                 taskList.add(task);
             } while (cursor.moveToNext());
         }
@@ -81,30 +90,38 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return taskList;
     }
 
-    // Görev güncellemek
     public void updateTask(ToDoModel task) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_TASK, task.getTask());
         values.put(COL_DATE, task.getDate());
-        values.put(COL_TIME, task.getTime());  // Saat bilgisini güncelliyoruz
+        values.put(COL_TIME, task.getTime());
         values.put(COL_IMAGE_URI, task.getImageUri());
+        values.put(COL_SOUND_URI, task.getSoundUri());
 
         db.update(TABLE_NAME, values, "ID=?", new String[]{String.valueOf(task.getId())});
     }
 
-    // Durum güncellemek (tamamlandı/tamamlanmadı)
     public void updateStatus(int id, int status) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_STATUS, status);
-
         db.update(TABLE_NAME, values, "ID=?", new String[]{String.valueOf(id)});
     }
 
-    // Görev silmek
     public void deleteTask(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, "ID=?", new String[]{String.valueOf(id)});
     }
+    public void markTaskAsDone(int taskId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("status", 1); // 1 = tamamlandı
+        db.update(TABLE_NAME, values, COL_ID + "=?", new String[]{String.valueOf(taskId)});
+    }
+
+    public ToDoModel getTaskById(int taskId) {
+        return null;
+    }
+
 }

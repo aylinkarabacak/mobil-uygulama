@@ -5,15 +5,13 @@ public class ToDoModel {
     private int id;
     private String task;
     private String date;
-    private String time;  // Saat bilgisini tutmak için yeni değişken
+    private String time;
     private String imageUri;
-    private int status;  // Durum bilgisini tutmak için ekledik
+    private String soundUri;
+    private int status;
 
-    // Constructor
-    public ToDoModel() {
-    }
+    public ToDoModel() {}
 
-    // Getter ve Setter metodları
     public int getId() {
         return id;
     }
@@ -42,7 +40,6 @@ public class ToDoModel {
         return time;
     }
 
-    // Saat setter metodu eklendi
     public void setTime(String time) {
         this.time = time;
     }
@@ -55,11 +52,19 @@ public class ToDoModel {
         this.imageUri = imageUri;
     }
 
+    public String getSoundUri() {
+        return soundUri;
+    }
+
+    public void setSoundUri(String soundUri) {
+        this.soundUri = soundUri;
+    }
+
     public int getStatus() {
-        return status;  // Status getter metodu
+        return status;
     }
 
     public void setStatus(int status) {
-        this.status = status;  // Status setter metodu
+        this.status = status;
     }
 }

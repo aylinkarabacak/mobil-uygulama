@@ -1,96 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <RelativeLayout
+    <EditText
+        android:id="@+id/edittext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:hint="Yeni Görev Gir"
+        android:padding="10dp"
+        android:inputType="textCapSentences|textMultiLine" />
 
-        <EditText
-            android:id="@+id/edittext"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Yeni Görev Gir"
-            android:padding="10dp"
-            android:inputType="textCapSentences|textMultiLine" />
 
-        <Button
-            android:id="@+id/button_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/edittext"
-            android:layout_marginTop="10dp"
-            android:text="Tarih Seç" />
+    <Button
+        android:id="@+id/button_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tarih Seç" />
 
-        <TextView
-            android:id="@+id/textview_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/button_date"
-            android:layout_marginTop="5dp"
-            android:text="Tarih: -"
-            android:textSize="16sp" />
+    <TextView
+        android:id="@+id/textview_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tarih: "
+        android:padding="4dp"
+        android:textColor="#555555" />
 
-        <Button
-            android:id="@+id/button_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/textview_date"
-            android:layout_marginTop="10dp"
-            android:text="Saat Seç" />
+    <Button
+        android:id="@+id/button_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Saat Seç" />
 
-        <TextView
-            android:id="@+id/textview_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/button_time"
-            android:layout_marginTop="5dp"
-            android:text="Saat: -"
-            android:textSize="16sp" />
+    <TextView
+        android:id="@+id/textview_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Saat: "
+        android:padding="4dp"
+        android:textColor="#555555" />
 
-        <Button
-            android:id="@+id/button_image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/textview_time"
-            android:layout_marginTop="10dp"
-            android:text="Görsel Seç" />
+    <Button
+        android:id="@+id/button_sound"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ses Seç" />
 
-        <ImageView
-            android:id="@+id/image_preview"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_below="@id/button_image"
-            android:layout_marginTop="10dp"
-            android:scaleType="centerCrop"
-            android:visibility="visible"
-            android:background="#ccc" />
+    <TextView
+        android:id="@+id/textview_sound"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ses: "
+        android:padding="4dp"
+        android:textColor="#555555"
+        />
 
-        <!-- Görseli Kaldır Butonu (tam image'in altında ortalanmış) -->
-        <Button
-            android:id="@+id/button_remove_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/image_preview"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="6dp"
-            android:text="Görseli Kaldır"
-            android:textSize="14sp"
-            android:padding="8dp"
-            android:visibility="gone" />
 
-        <Button
-            android:id="@+id/button_save"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/button_remove_image"
-            android:layout_marginTop="20dp"
-            android:text="Kaydet"
-            android:textColor="@color/colorWhite"
-            android:background="@color/colorPrimary"
-            android:textSize="18sp" />
-    </RelativeLayout>
-</ScrollView>
+    <Button
+        android:id="@+id/button_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Resim Ekle" />
+
+    <ImageView
+        android:id="@+id/image_preview"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@id/button_image"
+        android:layout_marginTop="10dp"
+        android:scaleType="centerCrop"
+        android:visibility="visible"
+        android:background="#ccc" />
+
+
+    <Button
+        android:id="@+id/button_remove_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Resmi Kaldır"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/button_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Kaydet"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFFFFF"/>
+</LinearLayout>

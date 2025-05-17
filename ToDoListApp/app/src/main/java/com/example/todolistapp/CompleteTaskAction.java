@@ -13,5 +13,6 @@ public class CompleteTaskAction implements TaskAction {
     @Override
     public void execute(ToDoModel task) {
         db.updateStatus(task.getId(), 1);
+
     }
 }

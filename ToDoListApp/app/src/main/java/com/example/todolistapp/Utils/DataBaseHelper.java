@@ -121,6 +121,21 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public ToDoModel getTaskById(int taskId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, null, COL_ID + "=?", new String[]{String.valueOf(taskId)}, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            ToDoModel task = new ToDoModel();
+            task.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)));
+            task.setTask(cursor.getString(cursor.getColumnIndexOrThrow(COL_TASK)));
+            task.setStatus(cursor.getInt(cursor.getColumnIndexOrThrow(COL_STATUS)));
+            task.setDate(cursor.getString(cursor.getColumnIndexOrThrow(COL_DATE)));
+            task.setTime(cursor.getString(cursor.getColumnIndexOrThrow(COL_TIME)));
+            task.setImageUri(cursor.getString(cursor.getColumnIndexOrThrow(COL_IMAGE_URI)));
+            task.setSoundUri(cursor.getString(cursor.getColumnIndexOrThrow(COL_SOUND_URI)));
+            cursor.close();
+            return task;
+        }
         return null;
     }
 

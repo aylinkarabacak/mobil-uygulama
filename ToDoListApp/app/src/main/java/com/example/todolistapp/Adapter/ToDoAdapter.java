@@ -1,6 +1,7 @@
 package com.example.todolistapp.Adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,6 +80,7 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.MyViewHolder> 
                 // Alarm iptali
                 android.app.AlarmManager alarmManager = (android.app.AlarmManager) activity.getSystemService(Context.ALARM_SERVICE);
                 android.content.Intent intent = new android.content.Intent(activity, com.example.todolistapp.NotificationPublisher.class);
+                intent.setData(Uri.parse("custom://" + item.getId()));
                 android.app.PendingIntent pendingIntent = android.app.PendingIntent.getBroadcast(
                         activity,
                         item.getId(),

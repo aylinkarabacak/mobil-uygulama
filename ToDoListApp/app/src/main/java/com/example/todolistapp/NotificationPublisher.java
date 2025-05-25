@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.PowerManager;
 
 import androidx.core.app.NotificationCompat;
 
@@ -21,16 +22,22 @@ public class NotificationPublisher extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "myapp:wakelock");
+        wl.acquire(3000);
+
         String title = intent.getStringExtra(NOTIFICATION_TITLE);
         String text = intent.getStringExtra(NOTIFICATION_TEXT);
         String soundUri = intent.getStringExtra(NOTIFICATION_SOUND_URI);
         int taskId = intent.getIntExtra("taskId", -1);
 
-        // ✅ Görevi işaretle (zaten yapılmışsa tekrar bildirim gelmesin)
         if (taskId != -1) {
             DataBaseHelper db = new DataBaseHelper(context.getApplicationContext());
             ToDoModel task = db.getTaskById(taskId);
-            if (task != null && task.getStatus() == 1) return;
+            if (task != null && task.getStatus() == 1) {
+                wl.release();
+                return;
+            }
             db.markTaskAsDone(taskId);
         }
 
@@ -58,6 +65,8 @@ public class NotificationPublisher extends BroadcastReceiver {
                 .setAutoCancel(true);
 
         notificationManager.notify((int) System.currentTimeMillis(), builder.build());
+
+        wl.release();
     }
 }
 
